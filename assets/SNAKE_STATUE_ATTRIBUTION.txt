@@ -1,0 +1,8 @@
+"Snake Statue" by Ville Seppänen
+Source: https://skfb.ly/MnRU
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: http://creativecommons.org/licenses/by/4.0/
+
+This model is displayed in portfolio card 01. The visible card artwork includes
+the model title, creator, and license. Add additional model records to CARD_MODELS
+in main.js when associating more models with cards.

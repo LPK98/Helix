@@ -1,18 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
 <defs>
 <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#262628"/><stop offset="1" stop-color="#0d0d0e"/></linearGradient>
-<radialGradient id="orb" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#8d8d90"/><stop offset="1" stop-color="#0b0b0c"/></radialGradient>
-<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-
 <clipPath id="inner"><rect x="41" y="41" width="1118" height="718" rx="20"/></clipPath>
 </defs>
 <rect width="1200" height="800" fill="url(#bg)"/>
 <g clip-path="url(#inner)">
-<path d="M0 330 C 250 260 450 420 700 340 S 1050 280 1200 350 V800 H0Z" fill="#fff" fill-opacity="0.050"/><path d="M0 385 C 250 315 450 475 700 395 S 1050 335 1200 405 V800 H0Z" fill="#fff" fill-opacity="0.085"/><path d="M0 440 C 250 370 450 530 700 450 S 1050 390 1200 460 V800 H0Z" fill="#fff" fill-opacity="0.120"/><path d="M0 495 C 250 425 450 585 700 505 S 1050 445 1200 515 V800 H0Z" fill="#fff" fill-opacity="0.155"/><path d="M0 550 C 250 480 450 640 700 560 S 1050 500 1200 570 V800 H0Z" fill="#fff" fill-opacity="0.190"/>
 </g>
 <rect x="40.5" y="40.5" width="1119" height="719" rx="20" fill="none" stroke="#fff" stroke-opacity=".32"/>
 <text x="84" y="104" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="6" fill="#fff" fill-opacity=".55">SELECTED WORK</text>
-<text x="1116" y="104" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="6" fill="#fff" fill-opacity=".55">FOG</text>
+<text x="1116" y="104" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="6" fill="#fff" fill-opacity=".55">SNOWDEN</text>
+<text x="84" y="148" font-family="Arial,Helvetica,sans-serif" font-size="17" letter-spacing="1.5" fill="#fff" fill-opacity=".65">STATUE OF EDWARD SNOWDEN · ZAFIO · CC BY-NC-SA 4.0</text>
 <text x="80" y="700" font-family="Arial,Helvetica,sans-serif" font-size="150" font-weight="700" letter-spacing="-8" fill="#fff">02</text>
 <text x="1116" y="700" text-anchor="end" font-family="Georgia,serif" font-style="italic" font-size="34" fill="#fff" fill-opacity=".7">Form in motion</text>
 </svg>

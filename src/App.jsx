@@ -66,6 +66,15 @@ export default function App() {
         </div>
         <footer className="foot"><span>&copy; 2026 STUDIO</span><nav><a href="#">Instagram</a><a href="#">Behance</a><a href="mailto:hello@studio.example">Email</a></nav><button type="button" className="foot-top" data-go="0">Back to top &uarr;</button></footer>
       </section>
+
+      <div id="statueViewer" className="statue-viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Snake Statue 3D viewer">
+        <canvas id="statueViewerCanvas" aria-label="Interactive 3D view of the Snake Statue" />
+        <div className="statue-viewer-head">
+          <div><span id="statueViewerKicker" className="statue-viewer-kicker">SELECTED WORK · 01</span><h2 id="statueViewerTitle">Snake Statue</h2><p>Drag to rotate · Scroll to zoom</p></div>
+          <button id="statueViewerClose" className="statue-viewer-close" type="button" aria-label="Close 3D viewer">CLOSE <span aria-hidden="true">×</span></button>
+        </div>
+        <p className="statue-viewer-credit"><a id="statueViewerSource" href="https://skfb.ly/MnRU" target="_blank" rel="noreferrer">“Snake Statue” by Ville Seppänen</a><span> · </span><a id="statueViewerLicense" href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a></p>
+      </div>
     </>
   );
 }

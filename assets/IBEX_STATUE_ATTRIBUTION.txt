@@ -1,0 +1,9 @@
+"Ibex Statue Scan - Berlin - Tierpark" by Christian Rambow
+Source: https://skfb.ly/IPuP
+License: Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+License URL: http://creativecommons.org/licenses/by-nc/4.0/
+
+This model is displayed in portfolio card 03. The card artwork shows the model
+title, creator, and license. The interactive viewer links to the source and
+license. Add additional model records to CARD_MODELS in main.js to associate
+more models with cards.
