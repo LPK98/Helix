@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#262628"/><stop offset="1" stop-color="#0d0d0e"/></linearGradient>
+<radialGradient id="orb" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#8d8d90"/><stop offset="1" stop-color="#0b0b0c"/></radialGradient>
+<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+
+<clipPath id="inner"><rect x="41" y="41" width="1118" height="718" rx="20"/></clipPath>
+</defs>
+<rect width="1200" height="800" fill="url(#bg)"/>
+<g clip-path="url(#inner)">
+<rect x="520" y="150" width="18" height="440" fill="#fff" fill-opacity="0.080" transform="skewX(-14)"/><rect x="572" y="150" width="21" height="440" fill="#fff" fill-opacity="0.150" transform="skewX(-14)"/><rect x="624" y="150" width="24" height="440" fill="#fff" fill-opacity="0.220" transform="skewX(-14)"/><rect x="676" y="150" width="27" height="440" fill="#fff" fill-opacity="0.290" transform="skewX(-14)"/><rect x="728" y="150" width="30" height="440" fill="#fff" fill-opacity="0.360" transform="skewX(-14)"/><rect x="780" y="150" width="33" height="440" fill="#fff" fill-opacity="0.430" transform="skewX(-14)"/><rect x="832" y="150" width="36" height="440" fill="#fff" fill-opacity="0.500" transform="skewX(-14)"/><rect x="884" y="150" width="39" height="440" fill="#fff" fill-opacity="0.570" transform="skewX(-14)"/><rect x="936" y="150" width="42" height="440" fill="#fff" fill-opacity="0.640" transform="skewX(-14)"/>
+</g>
+<rect x="40.5" y="40.5" width="1119" height="719" rx="20" fill="none" stroke="#fff" stroke-opacity=".32"/>
+<text x="84" y="104" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="6" fill="#fff" fill-opacity=".55">SELECTED WORK</text>
+<text x="1116" y="104" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="6" fill="#fff" fill-opacity=".55">DUSK</text>
+<text x="80" y="700" font-family="Arial,Helvetica,sans-serif" font-size="150" font-weight="700" letter-spacing="-8" fill="#fff">03</text>
+<text x="1116" y="700" text-anchor="end" font-family="Georgia,serif" font-style="italic" font-size="34" fill="#fff" fill-opacity=".7">Form in motion</text>
+</svg>

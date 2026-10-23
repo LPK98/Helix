@@ -1,0 +1,9 @@
+Hero statue model: Statue of Liberty 3D Scan
+Creator: metron3d
+Source record: https://zenodo.org/records/10355435
+DOI: https://doi.org/10.5281/zenodo.10355435
+License: Creative Commons Attribution 4.0 International (CC BY 4.0).
+License text: https://creativecommons.org/licenses/by/4.0/
+Attribution: "Statue of Liberty 3D Scan" by metron3d, via Zenodo, licensed under CC BY 4.0.
+Changes made: the scan was cleaned of stray geometry, re-oriented upright, reduced in polygon count (about 20% of the original triangles) for web delivery, and is displayed with a procedural polished black-marble material.
+Asset file: statue-of-liberty.glb
