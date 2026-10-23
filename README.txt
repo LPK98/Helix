@@ -1,7 +1,7 @@
 HOW TO RUN
-The site uses ES modules + a 3D model, so open it through a local server (double-clicking index.html will not work):
-  python3 -m http.server 8000     then visit http://localhost:8000
-or use VS Code "Live Server".
+Install dependencies with `npm install`, then run `npm run dev` and open the local URL Vite prints.
+
+For a production build, run `npm run build`.
 
 PLACEHOLDERS TO EDIT
-- index.html: hello@studio.example and the Instagram/Behance links in the footer.
+- src/App.jsx: hello@studio.example and the Instagram/Behance links in the footer.
