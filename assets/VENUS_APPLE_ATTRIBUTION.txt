@@ -1,0 +1,9 @@
+"100.DB.11 Venus Apple Thorvaldsen" by Ancient World 3D
+Source: https://skfb.ly/o7sBE
+License: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+License URL: http://creativecommons.org/licenses/by-nc-sa/4.0/
+
+This model is displayed in portfolio card 04. The card artwork shows the model
+title, creator, and license. The interactive viewer links to the source and
+license. Add additional model records to CARD_MODELS in main.js to associate
+more models with cards.

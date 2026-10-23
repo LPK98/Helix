@@ -76,6 +76,8 @@ camera.position.set(0,0,9.25);
 const loader=new THREE.TextureLoader();
 const cards=[];
 const gridCards=[];
+const modelAssetCache=new Map();
+const modelAssetRequests=new Map();
 const COUNT=9;
 const W_SEGS=32;
 const GRID_H_SEGS=12;
@@ -94,6 +96,15 @@ const CARD_ASSETS=[
   new URL('./assets/work-07.svg',import.meta.url).href,
   new URL('./assets/work-08.svg',import.meta.url).href,
   new URL('./assets/work-09.svg',import.meta.url).href
+];
+const SCROLL_CARD_ASSETS=[
+  new URL('./assets/antique-card-01.png',import.meta.url).href,
+  new URL('./assets/antique-card-02.png',import.meta.url).href,
+  new URL('./assets/antique-card-03.png',import.meta.url).href,
+  new URL('./assets/antique-card-04.png',import.meta.url).href,
+  new URL('./assets/antique-card-05.png',import.meta.url).href,
+  new URL('./assets/antique-card-06.png',import.meta.url).href,
+  CARD_ASSETS[6],CARD_ASSETS[7],CARD_ASSETS[8]
 ];
 // Add one entry per card when more 3D models are ready. The card number maps
 // to the corresponding artwork and grid card.
@@ -128,6 +139,37 @@ const CARD_MODELS=[
     license:'CC BY-NC 4.0',
     licenseUrl:'http://creativecommons.org/licenses/by-nc/4.0/',
     attribution:'"Ibex Statue Scan - Berlin - Tierpark" by Christian Rambow, licensed under CC BY-NC 4.0.'
+  },
+  {
+    card:4,
+    src:new URL('./assets/100.db.11_venus_apple_thorvaldsen.glb',import.meta.url).href,
+    title:'100.DB.11 Venus Apple Thorvaldsen',
+    creator:'Ancient World 3D',
+    finish:'gray',
+    source:'https://skfb.ly/o7sBE',
+    license:'CC BY-NC-SA 4.0',
+    licenseUrl:'http://creativecommons.org/licenses/by-nc-sa/4.0/',
+    attribution:'"100.DB.11 Venus Apple Thorvaldsen" by Ancient World 3D, licensed under CC BY-NC-SA 4.0.'
+  },
+  {
+    card:5,
+    src:new URL('./assets/vhagar__ancient_dragon_statue.glb',import.meta.url).href,
+    title:'Vhagar Ancient Dragon Statue',
+    creator:'PixForge',
+    source:'https://skfb.ly/pLZKK',
+    license:'CC BY 4.0',
+    licenseUrl:'http://creativecommons.org/licenses/by/4.0/',
+    attribution:'"Vhagar Ancient Dragon Statue" by PixForge, licensed under CC BY 4.0.'
+  },
+  {
+    card:6,
+    src:new URL('./assets/photogrammetry_statue_-_deer_for_games_engine.glb',import.meta.url).href,
+    title:'Photogrammetry Statue - Deer for Games Engine',
+    creator:'Shawhir',
+    source:'https://skfb.ly/6zYKZ',
+    license:'CC BY 4.0',
+    licenseUrl:'http://creativecommons.org/licenses/by/4.0/',
+    attribution:'"Photogrammetry Statue - Deer for Games Engine" by Shawhir, licensed under CC BY 4.0.'
   }
 ];
 
@@ -641,10 +683,16 @@ function getTextureDimensions(tex){
   };
 }
 
-function updateCoverCrop(material,tex,targetAspect){
+function updateCoverCrop(material,tex,targetAspect,contain=false){
   const {width,height}=getTextureDimensions(tex);
   const imageAspect=width/height;
   const coverScale=material.uniforms.coverScale.value;
+
+  if(contain){
+    if(imageAspect>targetAspect)coverScale.set(1,imageAspect/targetAspect);
+    else coverScale.set(targetAspect/imageAspect,1);
+    return;
+  }
 
   if(imageAspect>targetAspect){
     coverScale.set(targetAspect/imageAspect,1);
@@ -679,6 +727,10 @@ function buildCardMaterial(tex){
         if(!gl_FrontFacing){
           uv.x=1.0-uv.x;
         }
+        if(uv.x<0.0||uv.x>1.0||uv.y<0.0||uv.y>1.0){
+          gl_FragColor=vec4(0.0);
+          return;
+        }
         vec4 c=texture2D(map,uv);
         gl_FragColor=vec4(c.rgb,c.a*opacity);
       }
@@ -686,67 +738,85 @@ function buildCardMaterial(tex){
   });
 }
 
-function loadCardTexture(url,targetAspect,onMaterialReady){
+function loadCardTexture(url,targetAspect,onMaterialReady,contain=false){
   const tex=loader.load(url,loadedTexture=>{
-    updateCoverCrop(onMaterialReady(),loadedTexture,targetAspect);
+    updateCoverCrop(onMaterialReady(),loadedTexture,targetAspect,contain);
   });
   tex.colorSpace=THREE.SRGBColorSpace;
   return tex;
 }
 
-function loadCardModels(){
-  if(!CARD_MODELS.length)return;
-  const modelLoader=new GLTFLoader();
-  CARD_MODELS.forEach(({card,src,attribution,finish})=>{
-    modelLoader.load(src,gltf=>{
-      const cardMesh=gridCards.find(mesh=>mesh.userData.cardNumber===card);
-      if(!cardMesh)return;
-
-      const model=gltf.scene.clone(true);
-      model.updateMatrixWorld(true);
-      const bounds=new THREE.Box3().setFromObject(model);
-      const size=bounds.getSize(new THREE.Vector3());
-      const center=bounds.getCenter(new THREE.Vector3());
-      if(!size.x||!size.y||!size.z)return;
-
-      const fit=Math.min(1.58/size.x,1.30/size.y);
-      const container=new THREE.Group();
-      container.position.set(0,0,.24);
-      container.userData.attribution=attribution;
-      model.scale.setScalar(fit);
-      model.position.set(-center.x*fit,-center.y*fit,-center.z*fit);
-      model.traverse(object=>{
-        if(!object.isMesh)return;
-        object.castShadow=false;
-        object.receiveShadow=false;
-        object.renderOrder=7;
-        object.material=Array.isArray(object.material)
-          ? object.material.map(material=>{
-              const instance=material.clone();
-              instance.transparent=true;
-              instance.depthWrite=false;
-              return instance;
-            })
-          : object.material.clone();
-        if(!Array.isArray(object.material)){
-          object.material.transparent=true;
-          object.material.depthWrite=false;
-        }
-      });
-      applyModelFinish(model,finish);
-      container.add(model);
-      container.userData.materials=[];
-      model.traverse(object=>{
-        if(object.isMesh){
-          const materials=Array.isArray(object.material)?object.material:[object.material];
-          container.userData.materials.push(...materials);
-        }
-      });
-      container.visible=false;
-      cardMesh.add(container);
-      cardMesh.userData.modelContainer=container;
-    },undefined,error=>console.warn(`Card ${card} model could not be loaded.`,error));
+function fetchCardModel(modelInfo){
+  if(modelAssetCache.has(modelInfo.card))return Promise.resolve(modelAssetCache.get(modelInfo.card));
+  if(modelAssetRequests.has(modelInfo.card))return modelAssetRequests.get(modelInfo.card);
+  const request=new Promise((resolve,reject)=>{
+    new GLTFLoader().load(modelInfo.src,gltf=>{
+      modelAssetCache.set(modelInfo.card,gltf);
+      resolve(gltf);
+    },undefined,reject);
+  }).catch(error=>{
+    modelAssetRequests.delete(modelInfo.card);
+    throw error;
   });
+  modelAssetRequests.set(modelInfo.card,request);
+  return request;
+}
+
+function attachCardModel(cardMesh,modelInfo,gltf){
+  if(cardMesh.userData.modelContainer)return;
+  const model=gltf.scene.clone(true);
+  model.updateMatrixWorld(true);
+  const bounds=new THREE.Box3().setFromObject(model);
+  const size=bounds.getSize(new THREE.Vector3());
+  const center=bounds.getCenter(new THREE.Vector3());
+  if(!size.x||!size.y||!size.z)return;
+
+  const fit=Math.min(1.58/size.x,1.30/size.y);
+  const container=new THREE.Group();
+  container.position.set(0,0,.24);
+  container.userData.attribution=modelInfo.attribution;
+  model.scale.setScalar(fit);
+  model.position.set(-center.x*fit,-center.y*fit,-center.z*fit);
+  model.traverse(object=>{
+    if(!object.isMesh)return;
+    object.castShadow=false;
+    object.receiveShadow=false;
+    object.renderOrder=7;
+    object.material=Array.isArray(object.material)
+      ? object.material.map(material=>{
+          const instance=material.clone();
+          instance.transparent=true;
+          instance.depthWrite=false;
+          return instance;
+        })
+      : object.material.clone();
+    if(!Array.isArray(object.material)){
+      object.material.transparent=true;
+      object.material.depthWrite=false;
+    }
+  });
+  applyModelFinish(model,modelInfo.finish);
+  container.add(model);
+  container.userData.materials=[];
+  model.traverse(object=>{
+    if(object.isMesh){
+      const materials=Array.isArray(object.material)?object.material:[object.material];
+      container.userData.materials.push(...materials);
+    }
+  });
+  container.visible=false;
+  cardMesh.add(container);
+  cardMesh.userData.modelContainer=container;
+}
+
+function loadCardModel(cardNumber){
+  const cardMesh=gridCards.find(mesh=>mesh.userData.cardNumber===cardNumber);
+  const modelInfo=CARD_MODELS.find(model=>model.card===cardNumber);
+  if(!cardMesh||!modelInfo||cardMesh.userData.modelContainer||cardMesh.userData.modelLoading)return;
+  cardMesh.userData.modelLoading=true;
+  fetchCardModel(modelInfo).then(gltf=>attachCardModel(cardMesh,modelInfo,gltf))
+    .catch(error=>console.warn(`Card ${cardNumber} model could not be loaded.`,error))
+    .finally(()=>{cardMesh.userData.modelLoading=false;});
 }
 
 const outlineUpperMaterial=new THREE.LineBasicMaterial({
@@ -766,14 +836,14 @@ const outlineLowerMaterial=new THREE.LineBasicMaterial({
 });
 
 function applyModelFinish(model,finish){
-  if(finish!=='black')return;
+  if(finish!=='black'&&finish!=='gray')return;
   model.traverse(object=>{
     if(!object.isMesh)return;
     const materials=Array.isArray(object.material)?object.material:[object.material];
     materials.forEach(material=>{
-      material.color?.set(0x383838);
-      if('metalness' in material)material.metalness=.16;
-      if('roughness' in material)material.roughness=.34;
+      material.color?.set(finish==='gray'?0x858585:0x383838);
+      if('metalness' in material)material.metalness=finish==='gray'?.08:.16;
+      if('roughness' in material)material.roughness=finish==='gray'?.52:.34;
       material.needsUpdate=true;
     });
   });
@@ -791,9 +861,10 @@ for(let i=0;i<COUNT;i++){
   const cardNumber=COUNT-i;
   let material;
   const tex=loadCardTexture(
-    CARD_ASSETS[cardNumber-1],
+    SCROLL_CARD_ASSETS[cardNumber-1],
     HELIX_CARD_W/HELIX_CARD_H,
-    ()=>material
+    ()=>material,
+    cardNumber<=6
   );
   material=buildCardMaterial(tex);
 
@@ -827,7 +898,6 @@ for(let i=0;i<GRID_ORDER.length;i++){
   gridCards.push(mesh);
   scene.add(mesh);
 }
-loadCardModels();
 
 let viewerRenderer=null;
 let viewerScene=null;
@@ -858,12 +928,8 @@ function closeStatueViewer(){
   if(viewerModel){
     viewerModel.traverse(object=>{
       if(!object.isMesh)return;
-      object.geometry?.dispose();
       const materials=Array.isArray(object.material)?object.material:[object.material];
-      materials.forEach(material=>{
-        Object.values(material).forEach(value=>{if(value?.isTexture)value.dispose();});
-        material.dispose();
-      });
+      materials.forEach(material=>material.dispose());
     });
     viewerModel=null;
   }
@@ -905,39 +971,40 @@ function openStatueViewer(cardNumber){
     viewerCamera.lookAt(0,0,0);
     window.addEventListener('resize',resizeStatueViewer);
     statueViewerClose?.focus({preventScroll:true});
-    const renderViewer=()=>{
+    const viewerSpinSpeed=.12;
+    let lastViewerFrame=0;
+    const renderViewer=(timestamp=0)=>{
       if(!viewerRenderer||!viewerScene)return;
-      if(viewerModel&&!viewerPointer)viewerModel.rotation.y+=.002;
+      const delta=lastViewerFrame?Math.min(.05,(timestamp-lastViewerFrame)/1000):0;
+      lastViewerFrame=timestamp;
+      if(viewerModel&&!viewerPointer)viewerModel.rotation.y+=viewerSpinSpeed*delta;
       viewerRenderer.render(viewerScene,viewerCamera);
       viewerFrame=requestAnimationFrame(renderViewer);
     };
-    new GLTFLoader().load(modelInfo.src,gltf=>{
-      if(session!==viewerSession){
-        gltf.scene.traverse(object=>{
-          object.geometry?.dispose();
-          const materials=Array.isArray(object.material)?object.material:[object.material];
-          materials.forEach(material=>{
-            if(!material)return;
-            Object.values(material).forEach(value=>{if(value?.isTexture)value.dispose();});
-            material.dispose();
-          });
-        });
-        return;
-      }
-      viewerModel=gltf.scene;
-      applyModelFinish(viewerModel,modelInfo.finish);
-      viewerModel.updateMatrixWorld(true);
-      const bounds=new THREE.Box3().setFromObject(viewerModel);
+    fetchCardModel(modelInfo).then(gltf=>{
+      if(session!==viewerSession)return;
+      const modelScene=gltf.scene.clone(true);
+      modelScene.traverse(object=>{
+        if(!object.isMesh)return;
+        object.material=Array.isArray(object.material)
+          ? object.material.map(material=>material.clone())
+          : object.material.clone();
+      });
+      applyModelFinish(modelScene,modelInfo.finish);
+      modelScene.updateMatrixWorld(true);
+      const bounds=new THREE.Box3().setFromObject(modelScene);
       const size=bounds.getSize(new THREE.Vector3());
       const center=bounds.getCenter(new THREE.Vector3());
       const fit=3.15/size.y;
-      viewerModel.scale.setScalar(fit);
-      viewerModel.position.set(-center.x*fit,-center.y*fit,-center.z*fit);
+      const centeredModel=new THREE.Group();
+      centeredModel.scale.setScalar(fit);
+      centeredModel.position.set(-center.x*fit,-center.y*fit,-center.z*fit);
+      centeredModel.add(modelScene);
+      viewerModel=new THREE.Group();
+      viewerModel.add(centeredModel);
       viewerScene.add(viewerModel);
       renderViewer();
-    },undefined,error=>{
-      console.warn('Snake Statue viewer could not load the model.',error);
-    });
+    }).catch(error=>console.warn(`${modelInfo.title} viewer could not load the model.`,error));
   }catch(error){
     console.warn('Snake Statue viewer could not start.',error);
   }
@@ -1024,6 +1091,9 @@ let outroProgress=0;
 function readScroll(){
   const r=track.getBoundingClientRect();
   target=clamp(-r.top/(track.offsetHeight-innerHeight));
+  // Card 06 has a larger model; begin fetching it well before its staggered
+  // grid entrance so it is ready to travel with the card.
+  if(target>.46)loadCardModel(6);
 
   const ir=introTrack.getBoundingClientRect();
   const heroRect=introStage.getBoundingClientRect();
@@ -1135,10 +1205,14 @@ function updateGridCard(mesh,moveT,settleT,time){
   mesh.material.uniforms.opacity.value=clamp(moveT*1.7);
   if(mesh.userData.modelContainer){
     const modelOpacity=clamp(moveT*1.7);
-    mesh.userData.modelContainer.visible=modelOpacity>.01;
-    mesh.userData.modelContainer.userData.materials.forEach(material=>{
+    const modelContainer=mesh.userData.modelContainer;
+    modelContainer.visible=modelOpacity>.01;
+    modelContainer.userData.materials.forEach(material=>{
       material.opacity=modelOpacity;
     });
+  }
+  if(moveT>.35&&CARD_MODELS.some(model=>model.card===mesh.userData.cardNumber)){
+    loadCardModel(mesh.userData.cardNumber);
   }
 }
 
