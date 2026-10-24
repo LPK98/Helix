@@ -584,6 +584,12 @@ function loadRealHeroStatue(){
 
 function setupHeroSculpture(){
   if(!heroCanvas||!heroSculpture){finishLoading();return;}
+  // Mobile browsers can composite this large transparent WebGL canvas as an
+  // opaque rectangle. The hero background and copy remain as the light mobile fallback.
+  if(matchMedia('(max-width: 640px)').matches){
+    finishLoading();
+    return;
+  }
   try{
     heroRenderer=new THREE.WebGLRenderer({
       canvas:heroCanvas,
