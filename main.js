@@ -584,17 +584,12 @@ function loadRealHeroStatue(){
 
 function setupHeroSculpture(){
   if(!heroCanvas||!heroSculpture){finishLoading();return;}
-  // Mobile browsers can composite this large transparent WebGL canvas as an
-  // opaque rectangle. The hero background and copy remain as the light mobile fallback.
-  if(matchMedia('(max-width: 640px)').matches){
-    finishLoading();
-    return;
-  }
+  const compactHero=matchMedia('(max-width: 640px)').matches;
   try{
     heroRenderer=new THREE.WebGLRenderer({
       canvas:heroCanvas,
       alpha:true,
-      antialias:true,
+      antialias:!compactHero,
       powerPreference:'high-performance',
       stencil:false,
       depth:true
@@ -602,7 +597,7 @@ function setupHeroSculpture(){
     heroRenderer.outputColorSpace=THREE.SRGBColorSpace;
     heroRenderer.toneMapping=THREE.ACESFilmicToneMapping;
     heroRenderer.toneMappingExposure=1;
-    heroRenderer.shadowMap.enabled=true;
+    heroRenderer.shadowMap.enabled=!compactHero;
     heroRenderer.shadowMap.type=THREE.PCFSoftShadowMap;
     heroRenderer.setClearColor(0x000000,0);
 
@@ -618,7 +613,7 @@ function setupHeroSculpture(){
     heroScene.add(new THREE.HemisphereLight(0xdfe6ee,0x050506,.35));
     heroKeyLight=new THREE.DirectionalLight(0xfff4e6,3);
     heroKeyLight.position.set(-3.8,4.2,4.8);
-    heroKeyLight.castShadow=true;
+    heroKeyLight.castShadow=!compactHero;
     heroKeyLight.shadow.mapSize.set(2048,2048);
     Object.assign(heroKeyLight.shadow.camera,{left:-3,right:3,top:3,bottom:-3,near:1,far:16});
     heroKeyLight.shadow.bias=-.0004;
